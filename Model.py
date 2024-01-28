@@ -1,23 +1,28 @@
-from transformers import AutoTokenizer, AutoModelWithLMHead, SummarizationPipeline
-
-from Tokenizer import Tokenizer
+from openai import OpenAI
+from key import OPENAI_API_KEY
 
 class Model():
     def __init__(self):
-        self.pipeline = SummarizationPipeline(
-                model=AutoModelWithLMHead.from_pretrained("SEBIS/code_trans_t5_large_code_documentation_generation_python_multitask"),
-                tokenizer=AutoTokenizer.from_pretrained("SEBIS/code_trans_t5_large_code_documentation_generation_python_multitask", skip_special_tokens=True),
-                device=-1
-            )
-        self.tokenizer = Tokenizer()
+        self.client = OpenAI(api_key=OPENAI_API_KEY)
 
-    def tokenize(self, code):
-        return self.tokenizer.tokenize(code)
-        
-    def process(self, text):
-        if not text:
-            print("Input text is empty.")
-            return
-        tokenized_text = self.tokenize(text)
-        # print("Tokenized text: " + tokenized_text)
-        return self.pipeline(tokenized_text, max_new_tokens=200)[0]['summary_text']
+    def ask(self, code):
+        question = self.generate_question(code)
+        stream = self.client.chat.completions.create(
+        model="gpt-3.5-turbo",
+        messages=[{"role": "user", "content": question}],
+        stream=True,
+        )
+
+        answer = ""
+
+        for chunk in stream:
+            if chunk.choices[0].delta.content is not None:
+                # print(chunk.choices[0].delta.content, end="")
+                answer += chunk.choices[0].delta.content
+
+        answer = answer.split("\n")
+        return answer
+
+    def generate_question(self, code):
+        base = "insert me a comment above every line of code explaining what it does:\n"
+        return base + code

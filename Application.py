@@ -1,6 +1,8 @@
 import tkinter as tk
+import threading
 
 from Model import Model
+from TextDecorator import TextDecorator
 
 class Application(tk.Frame):
     def __init__(self, master=None):
@@ -9,6 +11,7 @@ class Application(tk.Frame):
         self.pack()
         self.create_widgets()
         self.model = Model()
+        self.TextDecorator = TextDecorator(self.text_area_output)
 
     def create_widgets(self):
         self.text_areas = tk.Frame(self)
@@ -30,14 +33,15 @@ class Application(tk.Frame):
         self.copy.pack(side="right", expand=True)
 
     def generate(self):
-        overall_comment = self.model.process(self.text_area_input.get("1.0", "end-1c"))
-        commented_code = f"# {overall_comment}\n{self.text_area_input.get('1.0', 'end-1c')}"
-        self.text_area_output.configure(state="normal")
-        self.text_area_output.delete("1.0", tk.END)
-        self.text_area_output.insert("1.0", commented_code)
-        self.text_area_output.configure(state="disabled")
+        self.TextDecorator.placeholder()
         
+        threading.Thread(target=self.generate_async).start()
 
+    def generate_async(self):
+        response = self.model.ask(self.text_area_input.get("1.0", "end-1c"))
+        
+        self.master.after(0, self.TextDecorator.fill, response)
+        
     def copy(self):
         self.clipboard_clear()
         self.clipboard_append(self.text_area_output.get("1.0", "end-1c"))
