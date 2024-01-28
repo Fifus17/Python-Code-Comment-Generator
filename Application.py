@@ -26,11 +26,11 @@ class Application(tk.Frame):
         self.buttons = tk.Frame(self)
         self.buttons.pack(pady=10, side="bottom")
 
-        self.generate = tk.Button(self.buttons, text="  Generate  ", command=self.generate)
-        self.generate.pack(side="left", expand=True)
+        self.generate_button = tk.Button(self.buttons, text="  Generate  ", command=self.generate)
+        self.generate_button.pack(side="left", expand=True)
 
-        self.copy = tk.Button(self.buttons, text="  Copy  ", command=self.copy,)
-        self.copy.pack(side="right", expand=True)
+        self.copy_button = tk.Button(self.buttons, text="  Copy  ", command=self.copy,)
+        self.copy_button.pack(side="right", expand=True)
 
     def generate(self):
         self.TextDecorator.placeholder()

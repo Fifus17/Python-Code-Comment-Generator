@@ -18,17 +18,11 @@ class TextDecorator():
         self.text_area.configure(state="disabled")
 
     def placeholder(self):
-        self.text_area.delete("1.0", "end")
         self.text_area.configure(state="normal")
+        self.text_area.delete("1.0", "end")
         self.text_area.insert("end", "Generating...")
         self.text_area.configure(state="disabled")
     
     def config_tags(self):
         self.text_area.tag_config("green", foreground="green")
         self.text_area.tag_config("white", foreground="white")
-
-for i in range(10):
-    if(i % 2 == 0):
-        print(i//2, "even")
-    else:
-        print(i*2, "odd")
